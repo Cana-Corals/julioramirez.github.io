@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Julio Jesús Ramírez — Data & Revenue Analytics professional specializing in hospitality forecasting and business intelligence. Brooklyn, NY." />
+  <title>Julio Jesús Ramírez — Data &amp; Revenue Analytics</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Tokens ─────────────────────────────────────────── */
+    :root {
+      --ink:    #14213D;
+      --brass:  #B68D40;
+      --bone:   #F1EDE4;
+      --slate:  #5C6470;
+      --signal: #2E7D5B;
+
+      --serif: 'Fraunces', Georgia, serif;
+      --sans:  'IBM Plex Sans', system-ui, sans-serif;
+      --mono:  'IBM Plex Mono', 'Courier New', monospace;
+
+      --tile-bg:    #0C1525;
+      --tile-card:  #111D33;
+      --radius:     5px;
+    }
+
+    /* ── Reset ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bone);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--brass); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    /* ── Layout ─────────────────────────────────────────── */
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    section { padding: 4rem 0; }
+
+    section + section {
+      border-top: 1px solid rgba(20, 33, 61, 0.1);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════════════ */
+    .hero {
+      background: var(--ink);
+      padding: 3.75rem 0 3.25rem;
+    }
+
+    /* Eyebrow — location + status */
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--signal);
+      margin-bottom: 1.375rem;
+    }
+
+    .signal-dot {
+      flex-shrink: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--signal);
+      /* subtle pulse — disabled by prefers-reduced-motion rule above */
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.45; }
+    }
+
+    /* Name */
+    .hero-name {
+      font-family: var(--serif);
+      font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -0.015em;
+      color: var(--bone);
+      margin-bottom: 0.75rem;
+    }
+
+    /* One-liner */
+    .hero-role {
+      font-family: var(--sans);
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: rgba(241, 237, 228, 0.6);
+      margin-bottom: 2.25rem;
+    }
+
+    /* Contact row */
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1.1rem;
+      margin-bottom: 3rem;
+    }
+
+    .contact-row a,
+    .contact-row span {
+      font-family: var(--mono);
+      font-size: 0.775rem;
+      letter-spacing: 0.03em;
+      color: rgba(241, 237, 228, 0.55);
+    }
+
+    .contact-row a:hover { color: var(--brass); text-decoration: none; }
+
+    .contact-row a:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .contact-div {
+      color: rgba(241, 237, 228, 0.18);
+      user-select: none;
+    }
+
+    /* ── Reader-Board ───────────────────────────────────── */
+    .board {
+      border: 1px solid rgba(182, 141, 64, 0.3);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .board-header {
+      background: var(--brass);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 0.4rem 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .board-header::before {
+      content: '▶';
+      font-size: 0.55rem;
+      flex-shrink: 0;
+    }
+
+    .board-tiles {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--tile-bg);
+      gap: 1px;
+      perspective: 800px;
+    }
+
+    .tile {
+      background: var(--tile-card);
+      padding: 1.1rem 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      position: relative;
+      overflow: hidden;
+      animation: flip-in 0.45s ease-out backwards;
+    }
+
+    /* split-flap crease */
+    .tile::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
+    .tile:nth-child(1) { animation-delay: 0.05s; }
+    .tile:nth-child(2) { animation-delay: 0.2s;  }
+    .tile:nth-child(3) { animation-delay: 0.35s; }
+    .tile:nth-child(4) { animation-delay: 0.5s;  }
+
+    @keyframes flip-in {
+      from { transform: rotateX(-80deg); opacity: 0; }
+      to   { transform: rotateX(0deg);   opacity: 1; }
+    }
+
+    .tile-value {
+      font-family: var(--mono);
+      font-size: 1.55rem;
+      font-weight: 500;
+      color: var(--bone);
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+
+    .tile-value--live {
+      font-size: 1.05rem;
+      letter-spacing: 0.08em;
+      color: #4DBF7F;
+    }
+
+    .tile-label {
+      font-family: var(--mono);
+      font-size: 0.59rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(182, 141, 64, 0.65);
+    }
+
+    @media (max-width: 560px) {
+      .board-tiles { grid-template-columns: repeat(2, 1fr); }
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       SECTION SHELL
+    ══════════════════════════════════════════════════════ */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--brass);
+      margin-bottom: 0.35rem;
+    }
+
+    .section-heading {
+      font-family: var(--serif);
+      font-size: clamp(1.5rem, 3vw, 1.9rem);
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 2.25rem;
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       PROJECT CARDS
+    ══════════════════════════════════════════════════════ */
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: #FDFAF6;
+      border: 1px solid rgba(20, 33, 61, 0.09);
+      border-radius: var(--radius);
+      padding: 1.625rem 1.75rem 1.5rem 2rem;
+      position: relative;
+    }
+
+    /* left brass rule */
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--brass);
+      border-radius: var(--radius) 0 0 var(--radius);
+    }
+
+    .card-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 0.45rem;
+    }
+
+    .card-title {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.65rem;
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--slate);
+      line-height: 1.7;
+      margin-bottom: 1.1rem;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
+      padding: 0.2rem 0.5rem;
+      background: rgba(182, 141, 64, 0.09);
+      color: #8A6829;
+      border: 1px solid rgba(182, 141, 64, 0.22);
+      border-radius: 3px;
+    }
+
+    .card-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      align-items: center;
+    }
+
+    .card-link {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--brass);
+      padding-bottom: 1px;
+      transition: color 0.12s;
+    }
+
+    .card-link:hover { color: var(--brass); text-decoration: none; }
+
+    .card-link:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .card-unavailable {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--slate);
+      opacity: 0.7;
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       SKILLS
+    ══════════════════════════════════════════════════════ */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.75rem 3rem;
+    }
+
+    @media (max-width: 540px) {
+      .skills-grid { grid-template-columns: 1fr; }
+    }
+
+    .skill-group-label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--brass);
+      margin-bottom: 0.4rem;
+    }
+
+    .skill-list {
+      font-size: 0.875rem;
+      color: var(--slate);
+      line-height: 1.85;
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════════════════ */
+    footer {
+      background: var(--ink);
+      padding: 2.75rem 0;
+    }
+
+    .footer-name {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--bone);
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: rgba(241, 237, 228, 0.45);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: color 0.12s;
+    }
+
+    .footer-links a:hover { color: var(--brass); text-decoration: none; }
+
+    .footer-links a:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .footer-close {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 0.875rem;
+      color: rgba(241, 237, 228, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
+  <header class="hero">
+    <div class="container">
+
+      <p class="hero-eyebrow">
+        <span class="signal-dot" aria-hidden="true"></span>
+        Brooklyn, NY &nbsp;·&nbsp; Open to Data Analyst, Revenue Analyst &amp; BI roles
+      </p>
+
+      <h1 class="hero-name">Julio Jesús Ramírez</h1>
+      <p class="hero-role">Hospitality data, forecasting, and revenue analytics</p>
+
+      <nav class="contact-row" aria-label="Contact">
+        <a href="mailto:canacorals@gmail.com">canacorals@gmail.com</a>
+        <span class="contact-div" aria-hidden="true">/</span>
+        <a href="tel:+13475177834">+1 (XXX) XXX-XXXX</a>
+        <span class="contact-div" aria-hidden="true">/</span>
+        <a href="https://www.linkedin.com/in/julio-jesus-ramirez-920741137/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <span class="contact-div" aria-hidden="true">/</span>
+        <a href="https://github.com/Cana-Corals?tab=repositories" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+
+      <!-- Reader-board strip -->
+      <div class="board" role="region" aria-label="Thesis project metrics — Arlo Hotels Demand Forecasting">
+        <div class="board-header">
+          Arlo Hotels Demand Forecasting &mdash; M.S. Thesis Key Metrics
+        </div>
+        <div class="board-tiles">
+          <div class="tile">
+            <span class="tile-value">0.97</span>
+            <span class="tile-label">R² Score</span>
+          </div>
+          <div class="tile">
+            <span class="tile-value">~7%</span>
+            <span class="tile-label">MAPE</span>
+          </div>
+          <div class="tile">
+            <span class="tile-value">24 mo</span>
+            <span class="tile-label">Training Data</span>
+          </div>
+          <div class="tile">
+            <span class="tile-value tile-value--live">DEPLOYED</span>
+            <span class="tile-label">Status</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════
+       FEATURED WORK
+  ══════════════════════════════════════════ -->
+  <section id="work">
+    <div class="container">
+      <p class="section-label">Featured Work</p>
+      <h2 class="section-heading">Three projects — one from each domain</h2>
+
+      <div class="cards">
+
+        <!-- 1 · Arlo Hotels -->
+        <article class="card">
+          <p class="card-eyebrow">M.S. Thesis &nbsp;·&nbsp; Data Engineering &amp; Machine Learning</p>
+          <h3 class="card-title">Arlo Hotels Demand Forecasting System</h3>
+          <p class="card-desc">
+            Built a production-ready demand forecasting pipeline using two years of proprietary reservations and revenue data from Arlo Hotels.
+            A Python ETL process ingests and cleans PMS exports; a LightGBM model trained on engineered features — day-of-week, lead time,
+            seasonality, local event calendar — achieves R²&nbsp;0.97 with roughly 7% MAPE across properties. A Streamlit dashboard gives
+            revenue managers live 30/60/90-day occupancy forecasts without touching the underlying model.
+          </p>
+          <ul class="card-tags" aria-label="Technologies used">
+            <li class="tag">Python</li>
+            <li class="tag">LightGBM</li>
+            <li class="tag">Pandas</li>
+            <li class="tag">Streamlit</li>
+            <li class="tag">ETL Pipeline</li>
+            <li class="tag">Demand Forecasting</li>
+            <li class="tag">Feature Engineering</li>
+          </ul>
+          <div class="card-links">
+            <a class="card-link" href="YOUR_STREAMLIT_APP_URL" target="_blank" rel="noopener noreferrer">
+              ↗ Live Dashboard
+            </a>
+            <a class="card-link" href="YOUR_GITHUB_REPO_URL" target="_blank" rel="noopener noreferrer">
+              ↗ GitHub Repo
+            </a>
+          </div>
+        </article>
+
+        <!-- 2 · Love Inc -->
+        <article class="card">
+          <p class="card-eyebrow">Brand &amp; Event Marketing &nbsp;·&nbsp; Web</p>
+          <h3 class="card-title">Love Inc — Event &amp; Brand Site</h3>
+          <p class="card-desc">
+            Designed and built the web presence for Love Inc, a house-music and nightlife event brand based in NYC.
+            The site hosts event photography and links directly to ticketing for each show.
+            The project demonstrates end-to-end brand execution — visual identity, copywriting, audience conversion — which maps
+            directly to marketing analytics and campaign measurement work: you can't measure a funnel you haven't built.
+          </p>
+          <ul class="card-tags" aria-label="Technologies used">
+            <li class="tag">Brand Identity</li>
+            <li class="tag">Event Marketing</li>
+            <li class="tag">Web Design</li>
+            <li class="tag">Wix</li>
+          </ul>
+          <div class="card-links">
+            <a class="card-link" href="YOUR_LOVEINC_WIX_URL" target="_blank" rel="noopener noreferrer">
+              ↗ Live Site
+            </a>
+          </div>
+        </article>
+
+        <!-- 3 · E&M Beach Villas -->
+        <article class="card">
+          <p class="card-eyebrow">Revenue Analytics &nbsp;·&nbsp; Financial Modeling</p>
+          <h3 class="card-title">E&amp;M Beach Villas — Revenue &amp; Expense Model</h3>
+          <p class="card-desc">
+            Built a multi-sheet Excel financial model to track revenue, operating expenses, and profitability across a short-term rental
+            portfolio in Puerto Rico. The model includes dynamic rate scenarios, occupancy sensitivity analysis, and monthly P&amp;L reporting.
+            It directly informed pricing decisions and is the same unit-economics thinking — RevPAR, ADR, occupancy trade-offs — that
+            underpins hotel revenue management.
+          </p>
+          <ul class="card-tags" aria-label="Technologies used">
+            <li class="tag">Excel</li>
+            <li class="tag">Financial Modeling</li>
+            <li class="tag">Revenue Management</li>
+            <li class="tag">Short-Term Rentals</li>
+            <li class="tag">P&amp;L Analysis</li>
+            <li class="tag">Sensitivity Analysis</li>
+          </ul>
+          <div class="card-links">
+            <span class="card-unavailable">⊘ Available on request</span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       SKILLS
+  ══════════════════════════════════════════ -->
+  <section id="skills">
+    <div class="container">
+      <p class="section-label">Skills</p>
+      <h2 class="section-heading">Tools and domains</h2>
+
+      <div class="skills-grid">
+        <div class="skill-group">
+          <span class="skill-group-label">Querying &amp; Programming</span>
+          <p class="skill-list">SQL (PostgreSQL, MySQL) &nbsp;·&nbsp; Python (Pandas, NumPy, Scikit-learn) &nbsp;·&nbsp; R</p>
+        </div>
+        <div class="skill-group">
+          <span class="skill-group-label">BI &amp; Visualization</span>
+          <p class="skill-list">Tableau &nbsp;·&nbsp; Power BI &nbsp;·&nbsp; Streamlit &nbsp;·&nbsp; Excel (advanced) &nbsp;·&nbsp; Google Sheets</p>
+        </div>
+        <div class="skill-group">
+          <span class="skill-group-label">Machine Learning</span>
+          <p class="skill-list">LightGBM &nbsp;·&nbsp; XGBoost &nbsp;·&nbsp; Scikit-learn &nbsp;·&nbsp; Regression &nbsp;·&nbsp; Time Series Forecasting</p>
+        </div>
+        <div class="skill-group">
+          <span class="skill-group-label">Data Engineering</span>
+          <p class="skill-list">ETL Pipelines &nbsp;·&nbsp; Data Cleaning &nbsp;·&nbsp; Feature Engineering &nbsp;·&nbsp; Git &nbsp;·&nbsp; Jupyter</p>
+        </div>
+        <div class="skill-group">
+          <span class="skill-group-label">Revenue &amp; Analytics</span>
+          <p class="skill-list">Demand Forecasting &nbsp;·&nbsp; RevPAR / ADR / OCC &nbsp;·&nbsp; Pricing Strategy &nbsp;·&nbsp; P&amp;L Analysis &nbsp;·&nbsp; Competitive Set Analysis</p>
+        </div>
+        <div class="skill-group">
+          <span class="skill-group-label">Languages</span>
+          <p class="skill-list">English (native) &nbsp;·&nbsp; Spanish (native)</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer>
+    <div class="container">
+      <p class="footer-name">Julio Jesús Ramírez</p>
+      <nav class="footer-links" aria-label="Footer contact">
+        <a href="mailto:canacorals@gmail.com">canacorals@gmail.com</a>
+        <a href="tel:+1XXXXXXXXXX">+1 (XXX) XXX-XXXX</a>
+        <a href="YOUR_LINKEDIN_URL" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="YOUR_GITHUB_URL" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+      <p class="footer-close">Brooklyn, NY — open to Data Analyst, Revenue Analyst, and BI roles in NYC.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
