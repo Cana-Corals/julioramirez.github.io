@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Arlo Williamsburg Hotel Forecasting ETL — M.S. Thesis case study by Julio Jesús Ramírez. ML-based demand, ADR, and RevPAR forecasting pipeline." />
+  <title>Arlo Hotels Forecasting — Julio Jesús Ramírez</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Tokens ─────────────────────────────────────────── */
+    :root {
+      --night:      #07090E;
+      --panel:      #0C1019;
+      --surface:    #111822;
+      --gold:       #C9A252;
+      --gold-dim:   rgba(201, 162, 82, 0.14);
+      --gold-rule:  rgba(201, 162, 82, 0.25);
+      --cream:      #F2EDE3;
+      --cream-60:   rgba(242, 237, 227, 0.60);
+      --cream-35:   rgba(242, 237, 227, 0.35);
+      --cream-15:   rgba(242, 237, 227, 0.12);
+      --signal:     #3DAA6F;
+      --miss:       #C9645A;
+
+      --serif:   'Fraunces', Georgia, serif;
+      --display: 'Cormorant Garamond', Georgia, serif;
+      --sans:    'IBM Plex Sans', system-ui, sans-serif;
+      --mono:    'IBM Plex Mono', 'Courier New', monospace;
+
+      --radius: 3px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--night);
+      color: var(--cream);
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { color: var(--cream); text-decoration: none; }
+    a:focus-visible {
+      outline: 1px solid var(--gold);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    section { padding: 4.5rem 0; }
+    section + section { border-top: 1px solid var(--gold-rule); }
+
+    /* ══════════════════════════════════════════════════════
+       NAV
+    ══════════════════════════════════════════════════════ */
+    .site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(7, 9, 14, 0.90);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--gold-rule);
+    }
+
+    .site-nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+    }
+
+    .nav-brand {
+      font-family: var(--display);
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      color: var(--cream);
+    }
+
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 0.63rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--cream-60);
+      transition: color 0.15s;
+    }
+    .nav-back:hover { color: var(--gold); }
+
+    /* ══════════════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════════════ */
+    .hero {
+      background: radial-gradient(ellipse at 50% -5%, #1C2235 0%, var(--night) 65%);
+      padding-top: 52px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before, .hero::after {
+      content: '';
+      position: absolute;
+      width: 100px; height: 100px;
+      border-color: var(--gold-rule);
+      border-style: solid;
+      pointer-events: none;
+    }
+    .hero::before { top: 72px; left: 2rem; border-width: 1px 0 0 1px; }
+    .hero::after { bottom: 2rem; right: 2rem; border-width: 0 1px 1px 0; }
+
+    .hero-inner { padding: 3.5rem 0 3rem; }
+
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-family: var(--mono);
+      font-size: 0.63rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      opacity: 0.85;
+    }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(2.1rem, 5.5vw, 3.4rem);
+      font-weight: 300;
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+      color: var(--cream);
+      margin-bottom: 1.1rem;
+    }
+
+    .hero-question {
+      font-family: var(--display);
+      font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--cream-60);
+      max-width: 640px;
+      margin-bottom: 2rem;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-rule {
+      width: 56px; height: 1px;
+      background: var(--gold);
+      margin-bottom: 2rem;
+      opacity: 0.55;
+    }
+
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.5rem 2rem;
+    }
+
+    .btn-primary {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--night);
+      background: var(--gold);
+      padding: 0.65rem 1.1rem;
+      border-radius: 2px;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--cream); color: var(--night); }
+
+    .hero-link-note {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.04em;
+      color: var(--cream-35);
+      margin-top: 0.4rem;
+    }
+
+    .card-link {
+      font-family: var(--mono);
+      font-size: 0.71rem;
+      letter-spacing: 0.06em;
+      color: var(--cream-60);
+      border-bottom: 1px solid var(--gold-rule);
+      padding-bottom: 1px;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .card-link:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* ══════════════════════════════════════════════════════
+       SECTION SHELL
+    ══════════════════════════════════════════════════════ */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+      opacity: 0.7;
+    }
+
+    .section-heading {
+      font-family: var(--serif);
+      font-size: clamp(1.5rem, 3.2vw, 2rem);
+      font-weight: 300;
+      color: var(--cream);
+      letter-spacing: -0.01em;
+      margin-bottom: 1.75rem;
+    }
+
+    .section-intro {
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: var(--cream-60);
+      line-height: 1.85;
+      max-width: 680px;
+      margin-bottom: 2rem;
+    }
+
+    .section-intro strong { color: var(--cream); font-weight: 400; }
+
+    blockquote.research-q {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1.5;
+      border-left: 2px solid var(--gold);
+      padding-left: 1.5rem;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       PIPELINE
+    ══════════════════════════════════════════════════════ */
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      border: 1px solid var(--gold-rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--gold-rule);
+    }
+
+    .pipe-step {
+      background: var(--panel);
+      padding: 1.5rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+    }
+
+    .pipe-step::after {
+      content: '→';
+      position: absolute;
+      right: -0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      font-size: 0.8rem;
+      z-index: 2;
+      opacity: 0.7;
+    }
+    .pipe-step:last-child::after { content: none; }
+
+    .pipe-num {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+
+    .pipe-label {
+      font-family: var(--display);
+      font-size: 0.95rem;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+
+    .pipe-detail {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--cream-35);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 760px) {
+      .pipeline { grid-template-columns: 1fr; }
+      .pipe-step::after { content: '↓'; right: 50%; top: auto; bottom: -0.6rem; transform: translateX(50%); }
+      .pipe-step:last-child::after { content: none; }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       DATA SOURCES TABLE
+    ══════════════════════════════════════════════════════ */
+    .sources-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .sources-table th {
+      font-family: var(--mono);
+      font-size: 0.56rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: left;
+      padding: 0.6rem 1rem 0.6rem 0;
+      border-bottom: 1px solid var(--gold-rule);
+      opacity: 0.85;
+    }
+
+    .sources-table td {
+      padding: 0.85rem 1rem 0.85rem 0;
+      border-bottom: 1px solid rgba(201, 162, 82, 0.1);
+      color: var(--cream-60);
+      font-weight: 300;
+      vertical-align: top;
+    }
+
+    .sources-table td:first-child { color: var(--cream); font-weight: 400; }
+    .sources-table code {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--cream-60);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       STAT TILES
+    ══════════════════════════════════════════════════════ */
+    .board { border: 1px solid var(--gold-rule); border-radius: var(--radius); overflow: hidden; margin-bottom: 2.5rem; }
+
+    .board-header {
+      border-bottom: 1px solid var(--gold-rule);
+      color: var(--gold);
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.55rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .board-header::before { content: '▶'; font-size: 0.48rem; opacity: 0.65; }
+
+    .board-tiles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--gold-rule);
+      gap: 1px;
+    }
+
+    .tile { background: var(--panel); padding: 1.25rem 1.25rem 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .tile-value { font-family: var(--mono); font-size: 1.7rem; font-weight: 500; color: var(--cream); letter-spacing: -0.01em; line-height: 1; }
+    .tile-sub { font-family: var(--mono); font-size: 0.68rem; color: var(--cream-35); }
+    .tile-label { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(201, 162, 82, 0.5); }
+
+    @media (max-width: 560px) { .board-tiles { grid-template-columns: 1fr; } }
+
+    /* ══════════════════════════════════════════════════════
+       CHART — actual vs predicted
+    ══════════════════════════════════════════════════════ */
+    .chart-wrap {
+      border: 1px solid var(--gold-rule);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 1.5rem 1.5rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .chart-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .chart-title {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cream-60);
+    }
+
+    .chart-legend { display: flex; gap: 1.25rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-family: var(--mono); font-size: 0.62rem; color: var(--cream-35); }
+    .legend-swatch { width: 10px; height: 2px; display: inline-block; }
+
+    .chart-svg { width: 100%; height: auto; display: block; }
+    .chart-caption { font-family: var(--mono); font-size: 0.62rem; color: var(--cream-35); line-height: 1.7; }
+
+    /* Feature importance bars */
+    .fi-list { display: flex; flex-direction: column; gap: 0.9rem; }
+    .fi-row { display: grid; grid-template-columns: 150px 1fr 52px; align-items: center; gap: 0.9rem; }
+    .fi-name { font-family: var(--mono); font-size: 0.68rem; color: var(--cream-60); }
+    .fi-track { height: 8px; background: rgba(201, 162, 82, 0.1); border-radius: 2px; overflow: hidden; }
+    .fi-fill { height: 100%; background: linear-gradient(90deg, var(--gold), rgba(201,162,82,0.55)); border-radius: 2px; }
+    .fi-pct { font-family: var(--mono); font-size: 0.68rem; color: var(--gold); text-align: right; }
+
+    @media (max-width: 560px) {
+      .fi-row { grid-template-columns: 96px 1fr 44px; }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       APP WALKTHROUGH
+    ══════════════════════════════════════════════════════ */
+    .walk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--gold-rule);
+      border: 1px solid var(--gold-rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .walk-item { background: var(--panel); padding: 1.15rem 1.4rem; display: grid; grid-template-columns: 2.4rem 1fr; gap: 1rem; align-items: start; }
+
+    .walk-num { font-family: var(--mono); font-size: 0.85rem; color: var(--gold); opacity: 0.6; }
+
+    .walk-title {
+      font-family: var(--display);
+      font-size: 1.05rem;
+      color: var(--cream);
+      margin-bottom: 0.35rem;
+    }
+
+    .walk-desc { font-size: 0.83rem; font-weight: 300; color: var(--cream-60); line-height: 1.7; }
+
+    .walk-tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.54rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--cream-35);
+      border: 1px solid var(--cream-15);
+      border-radius: 2px;
+      padding: 0.1rem 0.4rem;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 560px) {
+      .walk-item { grid-template-columns: 1fr; }
+      .walk-num { display: none; }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════════════════ */
+    footer { border-top: 1px solid var(--gold-rule); padding: 3rem 0; }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 0.71rem;
+      letter-spacing: 0.05em;
+      color: var(--cream-35);
+      transition: color 0.12s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-close {
+      font-family: var(--display);
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--cream-35);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════ -->
+  <nav class="site-nav" aria-label="Site navigation">
+    <div class="container">
+      <span class="nav-brand">J.J. Ramírez</span>
+      <a class="nav-back" href="index.html#work">← Back to Portfolio</a>
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-inner">
+
+        <p class="hero-eyebrow">M.S. Thesis &nbsp;·&nbsp; Data Engineering &amp; Machine Learning &nbsp;·&nbsp; Arlo Williamsburg</p>
+
+        <h1 class="hero-title">Hotel Demand Forecasting<br>ETL &amp; ML System</h1>
+
+        <p class="hero-question">
+          Can machine learning forecast hotel occupancy, ADR, and RevPAR more accurately
+          than traditional trailing-year methods — using a hotel's own reservation, rate, and guest-satisfaction data?
+        </p>
+
+        <div class="hero-rule" aria-hidden="true"></div>
+
+        <div class="hero-links">
+          <div>
+            <a class="btn-primary" href="https://arlo-forecasting.streamlit.app" target="_blank" rel="noopener noreferrer">↗ Open Live Dashboard</a>
+            <span class="hero-link-note">Free-tier hosting — may take ~20s to wake from sleep.</span>
+          </div>
+          <a class="card-link" href="https://github.com/Cana-Corals/arlo-forecasting-etl" target="_blank" rel="noopener noreferrer">↗ GitHub Repo</a>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════
+       RESEARCH QUESTION / OVERVIEW
+  ══════════════════════════════════════════ -->
+  <section id="overview">
+    <div class="container">
+      <p class="section-label">Overview</p>
+      <h2 class="section-heading">Why this page exists</h2>
+      <p class="section-intro">
+        This project's interactive tool is a Streamlit app on a free hosting tier, which sleeps after inactivity —
+        so a first click can hit a 20–30 second cold start. Rather than rely on that alone, this page is a
+        self-contained walkthrough of the pipeline, the model, and the tool itself, built with real output from the
+        project's ETL runs and held-out test predictions. <strong>The live dashboard link above still works</strong> —
+        this page just means the project holds up even if it's asleep when someone clicks through.
+      </p>
+      <blockquote class="research-q">
+        “Can machine learning help urban hotels forecast demand, pricing, and revenue performance
+        more accurately than traditional forecasting methods?”
+      </blockquote>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       PIPELINE
+  ══════════════════════════════════════════ -->
+  <section id="pipeline">
+    <div class="container">
+      <p class="section-label">Architecture</p>
+      <h2 class="section-heading">The pipeline, end to end</h2>
+      <p class="section-intro">
+        Two years of raw PMS exports — reservations, daily stats by source/segment/room type, rate changes, and
+        Medallia guest-satisfaction surveys — run through seven numbered ETL scripts into a single model-ready
+        daily master dataset, which feeds four LightGBM models and the Streamlit tool.
+      </p>
+
+      <div class="pipeline">
+        <div class="pipe-step">
+          <span class="pipe-num">01</span>
+          <span class="pipe-label">Raw hotel data</span>
+          <span class="pipe-detail">Reservations, daily stats, rate changes, Medallia — 2024–2025</span>
+        </div>
+        <div class="pipe-step">
+          <span class="pipe-num">02–06</span>
+          <span class="pipe-label">ETL &amp; cleaning</span>
+          <span class="pipe-detail">Inspect → profile → clean reservations, daily stats, rates, surveys</span>
+        </div>
+        <div class="pipe-step">
+          <span class="pipe-num">07</span>
+          <span class="pipe-label">Master dataset</span>
+          <span class="pipe-detail">hotel_daily_master.csv — merged, model-ready</span>
+        </div>
+        <div class="pipe-step">
+          <span class="pipe-num">08–16</span>
+          <span class="pipe-label">Feature engineering</span>
+          <span class="pipe-detail">Holidays, weather, NYC events, STR comp-set, review sentiment (NLP)</span>
+        </div>
+        <div class="pipe-step">
+          <span class="pipe-num">11</span>
+          <span class="pipe-label">LightGBM models</span>
+          <span class="pipe-detail">Occupancy · ADR · RevPAR · Revenue → Streamlit app</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       DATA SOURCES
+  ══════════════════════════════════════════ -->
+  <section id="data">
+    <div class="container">
+      <p class="section-label">Inputs</p>
+      <h2 class="section-heading">Data sources</h2>
+
+      <table class="sources-table">
+        <thead>
+          <tr><th>Source</th><th>Files</th><th>Coverage</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Reservation records</td><td><code>res_main.csv</code>, <code>res_daily_24/25.csv</code></td><td>2024–2025</td></tr>
+          <tr><td>Daily stats — booking source</td><td><code>wburg_daily_stats_source_*.csv</code></td><td>2024–2025</td></tr>
+          <tr><td>Daily stats — market segment</td><td><code>wburg_daily_stats_by_market_*.csv</code></td><td>2024–2025</td></tr>
+          <tr><td>Daily stats — room type</td><td><code>wburg_daily_stats_by_rt.csv</code></td><td>2024–2025</td></tr>
+          <tr><td>Rate changes</td><td><code>Arlo+Williamsburg+RateChange_*.xlsx</code></td><td>2024–2025</td></tr>
+          <tr><td>Guest satisfaction (Medallia)</td><td><code>medallia_*.xls</code></td><td>2024–2025, half-year chunks</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       MODEL PERFORMANCE
+  ══════════════════════════════════════════ -->
+  <section id="performance">
+    <div class="container">
+      <p class="section-label">Results</p>
+      <h2 class="section-heading">Model performance on held-out data</h2>
+      <p class="section-intro">
+        Models train on Jan 2024 – Oct 2025 and are scored on a 61-day holdout the model never saw during training
+        (Nov 1 – Dec 31, 2025). Figures below are computed directly from that holdout's prediction file.
+      </p>
+
+      <div class="board">
+        <div class="board-header">Holdout Test Set &nbsp;·&nbsp; 61 Days &nbsp;·&nbsp; Nov–Dec 2025</div>
+        <div class="board-tiles">
+          <div class="tile">
+            <span class="tile-value">0.97</span>
+            <span class="tile-sub">MAPE 8.5%</span>
+            <span class="tile-label">Revenue R²</span>
+          </div>
+          <div class="tile">
+            <span class="tile-value">0.98</span>
+            <span class="tile-sub">MAPE 4.4%</span>
+            <span class="tile-label">ADR R²</span>
+          </div>
+          <div class="tile">
+            <span class="tile-value">0.76</span>
+            <span class="tile-sub">MAPE 6.2%</span>
+            <span class="tile-label">Occupancy R²</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-title-row">
+          <span class="chart-title">Daily Room Revenue — Actual vs. Predicted</span>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-swatch" style="background:var(--cream-35)"></span>Actual</span>
+            <span class="legend-item"><span class="legend-swatch" style="background:var(--gold)"></span>Predicted</span>
+          </div>
+        </div>
+        <svg id="revChart" class="chart-svg" viewBox="0 0 860 260" preserveAspectRatio="none" role="img" aria-label="Line chart comparing actual and predicted daily room revenue over the 61-day holdout period"></svg>
+        <p class="chart-caption">Nov 1 – Dec 31, 2025 · $ room revenue/day · predictions from the trained LightGBM revenue model, not refit on this window.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       FEATURE IMPORTANCE
+  ══════════════════════════════════════════ -->
+  <section id="features">
+    <div class="container">
+      <p class="section-label">Model Insights</p>
+      <h2 class="section-heading">What drives the revenue forecast</h2>
+      <p class="section-intro">
+        Gain-based feature importance from the trained revenue model. The booked rate already on the books and
+        rooms already on the books dominate — expected for a hotel this close to stay dates — with short-term
+        rate momentum and prior-year seasonality contributing the rest.
+      </p>
+
+      <div class="chart-wrap">
+        <div class="fi-list">
+          <div class="fi-row"><span class="fi-name">avg_booked_rate</span><div class="fi-track"><div class="fi-fill" style="width:83.4%"></div></div><span class="fi-pct">83.4%</span></div>
+          <div class="fi-row"><span class="fi-name">total_rooms_on_books</span><div class="fi-track"><div class="fi-fill" style="width:11.7%"></div></div><span class="fi-pct">11.7%</span></div>
+          <div class="fi-row"><span class="fi-name">adr_lag_7d</span><div class="fi-track"><div class="fi-fill" style="width:1.4%"></div></div><span class="fi-pct">1.4%</span></div>
+          <div class="fi-row"><span class="fi-name">adr_lag_364d</span><div class="fi-track"><div class="fi-fill" style="width:0.2%"></div></div><span class="fi-pct">0.2%</span></div>
+          <div class="fi-row"><span class="fi-name">ooo_rooms</span><div class="fi-track"><div class="fi-fill" style="width:0.17%"></div></div><span class="fi-pct">0.2%</span></div>
+          <div class="fi-row"><span class="fi-name">rev_lag_364d</span><div class="fi-track"><div class="fi-fill" style="width:0.16%"></div></div><span class="fi-pct">0.2%</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       APP WALKTHROUGH
+  ══════════════════════════════════════════ -->
+  <section id="app">
+    <div class="container">
+      <p class="section-label">The Tool</p>
+      <h2 class="section-heading">Inside the Streamlit app</h2>
+      <p class="section-intro">
+        The forecasting output is served as a multi-page revenue-manager tool. Seven pages, in the order they
+        appear in the app's sidebar:
+      </p>
+
+      <div class="walk-list">
+        <div class="walk-item">
+          <span class="walk-num">01</span>
+          <div>
+            <div class="walk-title">Dashboard</div>
+            <p class="walk-desc">Landing KPI view — current occupancy, ADR, and RevPAR against trailing periods, with day-of-week filtering.</p>
+          </div>
+        </div>
+        <div class="walk-item">
+          <span class="walk-num">02</span>
+          <div>
+            <div class="walk-title">Forecast</div>
+            <p class="walk-desc">The core deliverable — 30/60/90-day occupancy, ADR, and revenue forecasts from the LightGBM models, generated forward from the last known data point.</p>
+          </div>
+        </div>
+        <div class="walk-item">
+          <span class="walk-num">03</span>
+          <div>
+            <div class="walk-title">Performance</div>
+            <p class="walk-desc">Reader-board style breakdown by booking source and room type — nights sold, occupancy, ADR, RevPAR, sellouts, and OOO-driven lost revenue.</p>
+          </div>
+        </div>
+        <div class="walk-item">
+          <span class="walk-num">04</span>
+          <div>
+            <div class="walk-title">Demand</div>
+            <p class="walk-desc">Booking channel mix (OTA / Direct / GDS / Phone), lead-time distribution, and length-of-stay patterns.</p>
+          </div>
+        </div>
+        <div class="walk-item">
+          <span class="walk-num">05</span>
+          <div>
+            <div class="walk-title">Competitive <span class="walk-tag">In Progress</span></div>
+            <p class="walk-desc">STR comp-set benchmarking — currently under construction in the live app.</p>
+          </div>
+        </div>
+        <div class="walk-item">
+          <span class="walk-num">06</span>
+          <div>
+            <div class="walk-title">Model Insights <span class="walk-tag">Access-Gated</span></div>
+            <p class="walk-desc">Feature importance, error diagnostics, and the ML-vs-trailing-year-baseline comparison — gated in the live app since it surfaces hotel-specific performance data.</p>
+          </div>
+        </div>
+        <div class="walk-item">
+          <span class="walk-num">07</span>
+          <div>
+            <div class="walk-title">Rooms</div>
+            <p class="walk-desc">Room-type-level forward view combining the forecast engine with current on-the-books pace.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer>
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer links">
+        <a href="index.html#work">← Back to Portfolio</a>
+        <a href="https://arlo-forecasting.streamlit.app" target="_blank" rel="noopener noreferrer">Live Dashboard ↗</a>
+        <a href="https://github.com/Cana-Corals/arlo-forecasting-etl" target="_blank" rel="noopener noreferrer">GitHub Repo ↗</a>
+        <a href="mailto:canacorals@gmail.com">canacorals@gmail.com</a>
+      </nav>
+      <p class="footer-close">Julio Jesús Ramírez — Brooklyn, NY.</p>
+    </div>
+  </footer>
+
+
+  <script>
+    // Real held-out test-set predictions (Nov 1 – Dec 31, 2025) from outputs/model_predictions.csv
+    const revData = [{"d":"11-01","a":95785,"p":86667},{"d":"11-02","a":39036,"p":40614},{"d":"11-03","a":48433,"p":49419},{"d":"11-04","a":51093,"p":51295},{"d":"11-05","a":52216,"p":50561},{"d":"11-06","a":54800,"p":52020},{"d":"11-07","a":71613,"p":74548},{"d":"11-08","a":78252,"p":79412},{"d":"11-09","a":31548,"p":32536},{"d":"11-10","a":29230,"p":31489},{"d":"11-11","a":36603,"p":38724},{"d":"11-12","a":45563,"p":46726},{"d":"11-13","a":38741,"p":40397},{"d":"11-14","a":59272,"p":56361},{"d":"11-15","a":66334,"p":72718},{"d":"11-16","a":24203,"p":25449},{"d":"11-17","a":32054,"p":29658},{"d":"11-18","a":41336,"p":39571},{"d":"11-19","a":41585,"p":42912},{"d":"11-20","a":36214,"p":38516},{"d":"11-21","a":45404,"p":49614},{"d":"11-22","a":56017,"p":56988},{"d":"11-23","a":20833,"p":22367},{"d":"11-24","a":16157,"p":16920},{"d":"11-25","a":15614,"p":15839},{"d":"11-26","a":19028,"p":20604},{"d":"11-27","a":26070,"p":31361},{"d":"11-28","a":36174,"p":42391},{"d":"11-29","a":28276,"p":26072},{"d":"11-30","a":15845,"p":16860},{"d":"12-01","a":22549,"p":25593},{"d":"12-02","a":47024,"p":47253},{"d":"12-03","a":67195,"p":70067},{"d":"12-04","a":67301,"p":70528},{"d":"12-05","a":89017,"p":83904},{"d":"12-06","a":79691,"p":83351},{"d":"12-07","a":36566,"p":40261},{"d":"12-08","a":55264,"p":58557},{"d":"12-09","a":78830,"p":78879},{"d":"12-10","a":80041,"p":77797},{"d":"12-11","a":71278,"p":73404},{"d":"12-12","a":77406,"p":80966},{"d":"12-13","a":79337,"p":83834},{"d":"12-14","a":23969,"p":29597},{"d":"12-15","a":29791,"p":31148},{"d":"12-16","a":31900,"p":29676},{"d":"12-17","a":27500,"p":26657},{"d":"12-18","a":26496,"p":29112},{"d":"12-19","a":44236,"p":48644},{"d":"12-20","a":53658,"p":53505},{"d":"12-21","a":21454,"p":24621},{"d":"12-22","a":17047,"p":21616},{"d":"12-23","a":17302,"p":23259},{"d":"12-24","a":19672,"p":27364},{"d":"12-25","a":25456,"p":31189},{"d":"12-26","a":39509,"p":44845},{"d":"12-27","a":42782,"p":52353},{"d":"12-28","a":35272,"p":38108},{"d":"12-29","a":28624,"p":33390},{"d":"12-30","a":32613,"p":37741},{"d":"12-31","a":68364,"p":66998}];
+
+    (function renderChart() {
+      const svg = document.getElementById('revChart');
+      const W = 860, H = 260, padL = 42, padR = 8, padT = 10, padB = 20;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+
+      const vals = revData.flatMap(d => [d.a, d.p]);
+      const max = Math.max(...vals), min = 0;
+      const n = revData.length;
+
+      const x = i => padL + (i / (n - 1)) * plotW;
+      const y = v => padT + plotH - ((v - min) / (max - min)) * plotH;
+
+      const line = key => revData.map((d, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(d[key]).toFixed(1)}`).join(' ');
+
+      let gridlines = '';
+      const steps = 4;
+      for (let s = 0; s <= steps; s++) {
+        const v = (max / steps) * s;
+        const yy = y(v).toFixed(1);
+        gridlines += `<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}" stroke="rgba(242,237,227,0.08)" stroke-width="1"/>`;
+        gridlines += `<text x="${padL - 6}" y="${yy}" text-anchor="end" dominant-baseline="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="rgba(242,237,227,0.35)">$${Math.round(v/1000)}k</text>`;
+      }
+
+      let monthLabels = '';
+      revData.forEach((d, i) => {
+        if (d.d.endsWith('-01')) {
+          const xx = x(i).toFixed(1);
+          monthLabels += `<text x="${xx}" y="${H - 4}" text-anchor="start" font-family="IBM Plex Mono, monospace" font-size="8" fill="rgba(242,237,227,0.35)">${d.d}</text>`;
+        }
+      });
+
+      svg.innerHTML = `
+        ${gridlines}
+        ${monthLabels}
+        <path d="${line('a')}" fill="none" stroke="rgba(242,237,227,0.55)" stroke-width="1.5" />
+        <path d="${line('p')}" fill="none" stroke="#C9A252" stroke-width="1.5" />
+      `;
+    })();
+  </script>
+
+</body>
+</html>
