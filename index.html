@@ -14,7 +14,7 @@
     /* ── Tokens ─────────────────────────────────────────── */
     :root {
       --night:      #010117eb;
-      --panel:      #00000011;
+      --panel:      #06003ace;
       --surface:    #6f0e0e;
       --inside-box-font:       #747372ee;
       --info-boxes-inside-projects:   rgb(85, 84, 84);
@@ -24,6 +24,10 @@
       --header-of-tablecontent-and-email-linkedin-:   rgb(255, 255, 255);
       --cream-15:   rgb(10, 240, 91);
       --smallest-letter-at-the-top:     #ffffff;
+      --accent-highlight-color:   rgb(201, 162, 82);
+      --divider-line-color:       rgb(255, 255, 255);
+      --tag-background-tint:      rgba(201, 162, 82, 0.08);
+      --tag-border-color:         rgba(201, 162, 82, 0.18);
 
       --serif:   'Fraunces', Georgia, serif;
       --display: 'Cormorant Garamond', Georgia, serif;
@@ -55,10 +59,10 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    a { color: var(--gold); text-decoration: none; }
+    a { color: var(--accent-highlight-color); text-decoration: none; }
     a:hover { color: var(--main-name-titles-of-each-project); text-decoration: none; }
     a:focus-visible {
-      outline: 1px solid var(--gold);
+      outline: 1px solid var(--accent-highlight-color);
       outline-offset: 3px;
       border-radius: 2px;
     }
@@ -73,7 +77,7 @@
     section { padding: 5.5rem 0; }
 
     section + section {
-      border-top: 1px solid var(--gold-rule);
+      border-top: 1px solid var(--divider-line-color);
     }
 
     /* ══════════════════════════════════════════════════════
@@ -88,7 +92,7 @@
       background: rgba(7, 9, 14, 0.90);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--gold-rule);
+      border-bottom: 1px solid var(--divider-line-color);
     }
 
     .site-nav .container {
@@ -121,7 +125,7 @@
       transition: color 0.15s;
     }
 
-    .nav-links a:hover { color: var(--gold); }
+    .nav-links a:hover { color: var(--accent-highlight-color); }
 
     /* ══════════════════════════════════════════════════════
        HERO
@@ -142,7 +146,7 @@
       position: absolute;
       width: 100px;
       height: 100px;
-      border-color: var(--gold-rule);
+      border-color: var(--divider-line-color);
       border-style: solid;
       pointer-events: none;
     }
@@ -215,7 +219,7 @@
     .hero-rule {
       width: 56px;
       height: 1px;
-      background: var(--gold);
+      background: var(--accent-highlight-color);
       margin-bottom: 2.5rem;
       opacity: 0.55;
     }
@@ -237,10 +241,10 @@
       color: var(--header-of-tablecontent-and-email-linkedin-);
     }
 
-    .contact-row a:hover { color: var(--gold); }
+    .contact-row a:hover { color: var(--accent-highlight-color); }
 
     .contact-row a:focus-visible {
-      outline: 1px solid var(--gold);
+      outline: 1px solid var(--accent-highlight-color);
       outline-offset: 3px;
       border-radius: 2px;
     }
@@ -252,14 +256,14 @@
 
     /* ── Reader-Board ───────────────────────────────────── */
     .board {
-      border: 1px solid var(--gold-rule);
+      border: 1px solid var(--divider-line-color);
       border-radius: var(--radius);
       overflow: hidden;
     }
 
     .board-header {
-      border-bottom: 1px solid var(--gold-rule);
-      color: var(--gold);
+      border-bottom: 1px solid var(--divider-line-color);
+      color: var(--accent-highlight-color);
       font-family: var(--mono);
       font-size: 0.58rem;
       font-weight: 500;
@@ -281,7 +285,7 @@
     .board-tiles {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      background: var(--gold-rule);
+      background: var(--divider-line-color);
       gap: 1px;
       perspective: 800px;
     }
@@ -354,7 +358,7 @@
       font-size: 0.58rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--accent-highlight-color);
       margin-bottom: 0.5rem;
       opacity: 0.7;
     }
@@ -381,7 +385,7 @@
     .card {
       background: var(--panel);
       border: 1px solid rgba(201, 162, 82, 0.1);
-      border-top: 2px solid var(--gold);
+      border-top: 2px solid var(--accent-highlight-color);
       border-radius: var(--radius);
       padding: 1.875rem 2rem 1.75rem;
       transition: border-color 0.2s;
@@ -389,7 +393,7 @@
 
     .card:hover {
       border-color: rgba(201, 162, 82, 0.28);
-      border-top-color: var(--gold);
+      border-top-color: var(--accent-highlight-color);
     }
 
     .card-eyebrow {
@@ -432,9 +436,9 @@
       font-size: 0.58rem;
       letter-spacing: 0.07em;
       padding: 0.2rem 0.55rem;
-      background: var(--gold-dim);
-      color: var(--gold);
-      border: 1px solid rgba(201, 162, 82, 0.18);
+      background: var(--tag-background-tint);
+      color: var(--accent-highlight-color);
+      border: 1px solid var(--tag-border-color);
       border-radius: 2px;
     }
 
@@ -451,15 +455,15 @@
       letter-spacing: 0.06em;
       color: var(--project-description-and-skills);
       text-decoration: none;
-      border-bottom: 1px solid var(--gold-rule);
+      border-bottom: 1px solid var(--divider-line-color);
       padding-bottom: 1px;
       transition: color 0.12s, border-color 0.12s;
     }
 
-    .card-link:hover { color: var(--gold); border-bottom-color: var(--gold); text-decoration: none; }
+    .card-link:hover { color: var(--accent-highlight-color); border-bottom-color: var(--accent-highlight-color); text-decoration: none; }
 
     .card-link:focus-visible {
-      outline: 1px solid var(--gold);
+      outline: 1px solid var(--accent-highlight-color);
       outline-offset: 3px;
       border-radius: 2px;
     }
@@ -491,10 +495,10 @@
       font-size: 0.57rem;
       letter-spacing: 0.17em;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--accent-highlight-color);
       margin-bottom: 0.65rem;
       padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--gold-rule);
+      border-bottom: 1px solid var(--divider-line-color);
       opacity: 0.75;
     }
 
@@ -510,7 +514,7 @@
        FOOTER
     ══════════════════════════════════════════════════════ */
     footer {
-      border-top: 1px solid var(--gold-rule);
+      border-top: 1px solid var(--divider-line-color);
       padding: 3rem 0;
     }
 
@@ -539,10 +543,10 @@
       transition: color 0.12s;
     }
 
-    .footer-links a:hover { color: var(--gold); text-decoration: none; }
+    .footer-links a:hover { color: var(--accent-highlight-color); text-decoration: none; }
 
     .footer-links a:focus-visible {
-      outline: 1px solid var(--gold);
+      outline: 1px solid var(--accent-highlight-color);
       outline-offset: 3px;
       border-radius: 2px;
     }
